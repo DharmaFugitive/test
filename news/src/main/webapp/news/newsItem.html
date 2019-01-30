@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>后台欢迎页</title>
+	<link rel="stylesheet" href="../css/reset.css" />
+	<link rel="stylesheet" href="../css/content.css" />
+	<script type="text/javascript" src="/news/js/vue.min.js"></script>
+	<script type="text/javascript" src="/news/js/vue-resource.min.js"></script>
+	<script type="text/javascript" src="/news/js/json2.js"></script>
+</head>
+<body marginwidth="0" marginheight="0">
+	<div class="container">
+		<div class="public-nav">您当前的位置：<a href="">管理首页</a><a href="">新闻详情</a></div>
+		<div class="public-content">
+			<div class="public-content-header">
+				<h3>新闻详情</h3>
+			</div>
+			<div class="public-content-cont" id="newsItem">
+					<h1>新闻标题:{{title}}</h1><br/>
+					<h3>新闻编号:{{id}}</h3><br/>
+					<h3>新闻作者:{{auth}}</h3><br/>
+					<h3>新闻类型:{{type}}</h3><br/>
+					<h3>新闻时间:{{createtime}}</h3><br/>
+					<h3>新闻描述:{{description}}</h3><br/>
+					<p>新闻内容:{{content}}</p>
+			</div>
+		</div>
+	</div>
+<!-- <script src="../kingediter/kindeditor-all-min.js"></script>
+<script>
+	 KindEditor.ready(function(K) {
+                window.editor = K.create('#editor_id');
+        });
+</script> -->
+<script type="text/javascript">
+	var newsVue = new Vue({
+		el:"#newsItem",
+		data:{
+			title:"",
+			id:"",
+			auth:"",
+			type:"",
+			createtime:"",
+			description:"",
+			content:""
+		}
+	});
+	
+	var newsId = sessionStorage.getItem("id");
+	Vue.http.get(
+			"/news/GetNewsByIdServlet",
+			{params:{"id":newsId}}
+			).then(
+				
+				function(resp){
+					var news = resp.body;
+					if(news == null){
+						alert("获取信息失败");
+					}else{
+						newsVue.$data.title = news.title;
+						newsVue.$data.id = news.id;
+						newsVue.$data.auth = news.auth;
+						newsVue.$data.type = news.type;
+						newsVue.$data.createtime = news.createtime;
+						newsVue.$data.description = news.description;
+						newsVue.$data.content = news.content;
+					}
+				},
+				function(error){
+					
+				}
+			);
+		
+</script>
+</body>
+</html>

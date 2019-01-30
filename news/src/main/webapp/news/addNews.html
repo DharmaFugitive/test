@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>后台欢迎页</title>
+	<link rel="stylesheet" href="../css/reset.css" />
+	<link rel="stylesheet" href="../css/content.css" />
+	<script type="text/javascript" src="/news/js/vue.min.js"></script>
+	<script type="text/javascript" src="/news/js/vue-resource.min.js"></script>
+	<script type="text/javascript" src="/news/js/json2.js"></script>
+</head>
+<body marginwidth="0" marginheight="0">
+	<div class="container">
+		<div class="public-nav">您当前的位置：<a href="">管理首页</a><a href="">增加新闻</a></div>
+		<div class="public-content">
+			<div class="public-content-header">
+				<h3>增加新闻</h3>
+			</div>
+			<div class="public-content-cont" id="addNewsContent">
+				<div class="form-group">
+					<label for="">标题</label>
+					<input class="form-input-txt" type="text" v-model="title">
+					<span></span>
+				</div>
+				<div class="form-group">
+					<label for="">简介</label>
+					<input class="form-input-txt" type="text" v-model="description">
+					<span></span>
+				</div>
+				<div class="form-group">
+					<label for="">内容</label>
+					<input class="form-input-txt" type="text" v-model="content">
+					<span></span>
+				</div>
+				<div class="form-group">
+					<label for="">创建时间</label>
+					<input class="form-input-txt" type="text" readonly="readonly" v-model="createtime">
+					<span></span>
+				</div>
+					<p style="display:none">{{author}}</p><br/>
+				<div class="form-group">
+					<input type="button" class="sub-btn" @click="addNewsSumbmit()" value="增加">
+					<span></span>
+				</div>
+					
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var addNews = new Vue({
+		el:"#addNewsContent",
+		data:{
+			title:'',
+			description:"",
+			content:"",
+			createtime:"",
+			author:"",
+			type:""
+		}
+	});
+	
+	// 获取当前系统时间
+	var myDate = new Date();
+	 //获取当前年
+	var year = myDate.getFullYear();
+	   //获取当前月
+	var month = myDate.getMonth() + 1;
+	    //获取当前日
+	var date = myDate.getDate();
+	var newDate = year + '-' + month + "-" + date;
+	addNews.$data.createtime=newDate;  
+
+	    
+	// 新闻里的author,需要是当前用户的id来当,因为两张表有外键联合
+	var userIdSe = sessionStorage.getItem("userId");
+	var typeSe = sessionStorage.getItem("author");
+	addNews.$data.author = userIdSe;
+	
+	// 增加新闻
+	function addNewsSumbmit() {
+		if(userIdSe == null){
+			alert("请登录");
+			return false;
+		}
+		Vue.http.get("/news/AddNewsServlet", 
+				{params : {
+				"title" : addNews.$data.title,
+				"description" : addNews.$data.description,
+				"content" : addNews.$data.content,
+				"createtime" : addNews.$data.createtime,
+				"author" : userIdSe,
+				"type" : typeSe
+			}}
+
+		).then(function(resp) {
+			var num = resp.body;
+			if (num == 1) {
+				alert("增加成功");
+			} else {
+				alert("增加失败");
+			}
+
+		});
+	}
+</script>
+</html>

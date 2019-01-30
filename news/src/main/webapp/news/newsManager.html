@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>后台欢迎页</title>
+<link rel="stylesheet" href="../css/reset.css" />
+<link rel="stylesheet" href="../css/content.css" />
+<script type="text/javascript" src="/news/js/vue.min.js"></script>
+<script type="text/javascript" src="/news/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="/news/js/json2.js"></script>
+</head>
+<body marginwidth="0" marginheight="0">
+	<div class="container">
+		<div class="public-nav">
+			您当前的位置：<a href="">管理首页</a><a href="">新闻管理</a>
+		</div>
+		<div class="public-content">
+			<div class="public-content-header">
+				<h3>新闻管理</h3>
+			</div>
+			<div class="public-content-cont" id="newsManage">
+				<table class="public-cont-table">
+					<tr>
+						<th style="width: 16%">新闻编号</th>
+						<th style="width: 16%">新闻标题</th>
+						<th style="width: 16%">新闻简述</th>
+						<th style="width: 16%">添加时间</th>
+						<th style="width: 16%">创建用户</th>
+						<th style="width: 20%">操作</th>
+					</tr>
+					<tr v-for="(news,index) in newsList">
+						<td><a href="javascript:void(0)" @click="jumpNewsId(news.id)">{{news.id}}</a></td>
+						<td>{{news.title}}</td>
+						<td>{{news.description}}</td>
+						<td>{{news.createtime}}</td>
+						<td>{{news.author}}</td> 
+						<td><div class="table-fun">
+								<a href="javascript:void(0)" @click="updNews(news.author,news.id)">修改</a><a
+									href="javascript:void(0)" @click="delNews(news.author,news.id)">删除</a>
+							</div></td>
+					</tr>
+
+				</table>
+				<div class="page">
+					<a href="javascript:void(0)" @click="firstPage()">首页</a> <a
+						href="javascript:void(0)" @click="upPage()">上一页</a> <a
+						href="javascript:void(0)" @click="nextPage()">下一页</a> 第<span
+						id="currentPage" style="color: red; font-weight: 600">{{currentPage}}</span>页
+					共<span style="color: red; font-weight: 600">{{totalPage}}</span>页 
+					<input type="text" class="page-input" v-model="number"> 
+					<input type="button" class="page-btn" value="跳转" @click="jumpPage()">
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var page= new Vue({
+		el:"#newsManage",
+		data:{
+			currentPage:1,
+			totalPage:0,
+			number:"",
+			newsList:[]
+		}		
+	});
+	
+  	window.onload=function() {
+		var obj = page.$data.currentPage;
+		loadingNews(obj);
+		
+	}  
+					
+	
+	// 首页新闻加载
+	function firstPage(){
+		var obj  = 1;
+		loadingNews(obj);
+		page.$data.currentPage = obj;
+	}
+	
+	// 上一页加载
+	function upPage(){
+		var obj;
+		var cur = parseInt(page.$data.currentPage);
+		if( cur <= 1){
+			obj =1;
+		}else{
+			obj = cur-1;
+		}
+		page.$data.currentPage = obj;
+		loadingNews(obj);
+		
+	}
+	
+	// 下一页加载
+	function nextPage(){
+		var obj;
+		var cur = parseInt(page.$data.currentPage);
+		var tot = parseInt(page.$data.totalPage);
+		if(cur >= tot){
+			obj = tot;
+		}else{
+			obj = cur+1;
+			page.$data.currentPage = obj;	
+		}
+		
+		loadingNews(obj);
+		
+	}
+	
+	// 跳转页码加载
+	function jumpPage(){
+		var num = parseInt(page.$data.number);
+		var tot = parseInt(page.$data.totalPage);
+		if(num>=1 && num <= tot){
+			page.$data.currentPage = num;
+			loadingNews(num);
+		}else{
+			alert("输入页码有误");
+		} 
+	}
+	
+
+	
+	// 加载新闻代码封装
+	function loadingNews(obj){
+		Vue.http.get("/news/GetNewsPageServlet",
+				{params:{"currentPage":obj}}		
+			).then(
+					function(resp){
+						var pageList = resp.body;
+						page.$data.totalPage = pageList.totalPage;
+						page.$data.newsList = pageList.data;
+					},
+					function(error){
+						alert("加载失败");
+					}
+					);
+	}
+
+	// 新闻详情跳转+传递对应id的信息
+	function jumpNewsId(id){
+		sessionStorage.setItem("id",id);
+		location.href="newsItem.html";
+	}
+	
+	// 修改新闻
+	function updNews(author,id){
+		var userN = sessionStorage.getItem("username");
+		if(userN == null){
+			alert("请登陆");
+			top.location.href="/news/login.html";
+			}else if(author == userN){ 	
+				sessionStorage.setItem("newsId",id);
+				location.href="/news/news/updateNews.html";
+			}else{
+			alert("此新闻不是你的,你没有权限修改");
+			}
+	}
+	
+	// 删除新闻
+	function delNews(author,id){
+ 		var userN = sessionStorage.getItem("username");
+		if(userN == null){
+			alert("请登陆");
+			top.location.href="/news/login.html";
+			}else if(author == userN){ 			 
+					Vue.http.get(
+							"/news/DelNewsByIdServlet",
+							{params:{"id":id}}
+						).then(
+							function (resp) {
+								var num = resp.body;
+								if(num == 1){
+									alert("新闻删除成功");
+									var num = page.$data.currentPage;
+									loadingNews(num);
+								}else{
+									alert("新闻删除失败");
+								}
+							});
+			}else{
+			alert("此新闻不是你的,你没有权限删除");
+			}
+	}
+	
+
+	
+	
+	
+</script>
+</html>

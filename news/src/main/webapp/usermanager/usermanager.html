@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>后台欢迎页</title>
+	<link rel="stylesheet" href="../css/reset.css" />
+	<link rel="stylesheet" href="../css/content.css" />
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+	<script type="text/javascript" src="../js/userManager.js"></script>
+</head>
+<body marginwidth="0" marginheight="0">
+	<div class="container">
+		<div class="public-nav">您当前的位置：<a href="">管理首页</a><a href="">用户管理</a></div>
+		<div class="public-content">
+			<div class="public-content-header">
+				<h3>用户管理</h3>
+			</div>
+			<div class="public-content-cont">
+				<table class="public-cont-table">
+					<tr>
+						<th style="width:16%">编号</th>
+						<th style="width:16%">账户</th>
+						<th style="width:16%">密码</th>
+						<th style="width:16%">名字</th>
+						<th style="width:16%">类别</th>
+						<th style="width:20%">操作</th>
+					</tr>
+					
+
+				</table>
+				<div class="page">
+					<form action="" method="get">
+						<a name="homePage" onclick="Page(this)">首页</a>
+						<a name="upPage"	onclick="Page(this)">上一页</a>
+						<a name="nextPage" onclick="Page(this)">下一页</a>
+						第<span id="currentPage" style="color:red;font-weight:600">1</span>页
+						共<span id="totalPage" style="color:red;font-weight:600"></span>页
+						<input type="text" class="page-input">
+						<input type="button" name="jumpPage" class="page-btn" value="跳转" onclick="Page(this)">
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

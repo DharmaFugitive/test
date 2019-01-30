@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>后台欢迎页</title>
+<link rel="stylesheet" href="../css/reset.css" />
+<link rel="stylesheet" href="../css/content.css" />
+<script type="text/javascript" src="/news/js/vue.min.js"></script>
+<script type="text/javascript" src="/news/js/vue-resource.min.js"></script>
+<script type="text/javascript" src="/news/js/json2.js"></script>
+</head>
+
+<body marginwidth="0" marginheight="0">
+	<div class="container">
+		<div class="public-nav">您当前的位置：<a href="">管理首页</a><a href="">修改新闻</a></div>
+		<div class="public-content">
+			<div class="public-content-header">
+				<h3>修改新闻</h3>
+			</div>
+	<div class="public-content-cont" id="updateNewsContent">
+				<div class="form-group">
+					<label for="">编号</label>
+					<input class="form-input-txt" type="text" readonly="readonly"  v-model="id">
+				</div>
+				<div class="form-group">
+					<label for="">标题</label>
+					<input class="form-input-txt" type="text" v-model="title">
+				</div>
+				<div class="form-group">
+					<label for="">简介</label>
+					<input class="form-input-txt" type="text" v-model="description">
+				</div>
+				<div class="form-group">
+					<label for="">内容</label>
+					<input class="form-input-txt" type="text" v-model="content">
+				</div>
+				<div class="form-group">
+					<label for="">创建时间</label>
+					<input class="form-input-txt" type="text" readonly="readonly"  v-model="createtime">
+				</div>	
+				<div class="form-group">
+					<label for="">作者</label>
+					<input class="form-input-txt" type="text" readonly="readonly"  v-model="author">
+				</div>
+				<div class="form-group">
+					<label for="">类型</label>
+					<input class="form-input-txt" readonly="readonly" type="text" v-model="type">
+				</div>
+		
+					
+				<div class="form-group">
+					<input type="button" class="sub-btn" @click="updNewsSumbmit()" value="修改">
+					<span></span>
+				</div>
+	</div>
+<script type="text/javascript">
+	var updnews = new Vue({
+		el:"#updateNewsContent",
+		data:{
+			id:"",
+			title:"",
+			description:"",
+			content:"",
+			createtime:"",
+			author:"",
+			type:""
+			
+		}
+	});
+	var newsId = sessionStorage.getItem("newsId");
+	Vue.http.get(
+			"/news/GetNewsByIdServlet",
+			{params:{"id":newsId}}).then(
+					function(resp){
+						var news = resp.body;
+						if(news == null){
+							alert("获取信息失败");
+						}else{
+			 				updnews.$data.title = news.title;
+							updnews.$data.id = news.id;
+							updnews.$data.author = news.author;
+							updnews.$data.type = news.type;
+							updnews.$data.createtime = news.createtime;
+							updnews.$data.description = news.description;
+							updnews.$data.content = news.content; 
+						}
+					});
+	
+	function updNewsSumbmit(){
+		// 修改新闻
+		Vue.http.get("/news/UpdateNewsServlet", 
+				{params : {
+				"title" : updnews.$data.title,
+				"description" : updnews.$data.description,
+				"content" : updnews.$data.content,
+				"createtime" : updnews.$data.createtime,
+				"author" : updnews.$data.author,
+				"type" : updnews.$data.type,
+				"id":updnews.$data.id
+			}}
+
+		).then(function(resp) {
+			var num = resp.body;
+			if (num == 1) {
+				alert("修改成功");
+				top.location.href="/news/index.html";
+			} else {
+				alert("修改失败");
+			}
+
+		});
+	}
+			
+</script>	
+</body>
+
+</html>
